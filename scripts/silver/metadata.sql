@@ -89,3 +89,26 @@ SUBCAT varchar(255),
 MAINTENANCE varchar(255),
 dwh_create_date datetime2 default getdate()
 );
+
+
+-----------------------------
+
+--After quality check I had to adjust the metdata of silver.crm_prd_info
+
+If object_id ('silver.crm_prd_info', 'U') is not null
+	drop table silver.crm_prd_info;
+
+create table silver.crm_prd_info (
+	prd_id int,
+	cat_id varchar(55),
+	prd_key varchar(55),
+	prd_nm varchar(255),
+	prd_cost int,
+	prd_line varchar(255),
+	prd_start_dt date,
+	prd_end_dt date,
+	dwh_create_date datetime2 default getdate()
+);
+
+
+--Addtion of cat_id which was substracted from prd_key to join in future table
