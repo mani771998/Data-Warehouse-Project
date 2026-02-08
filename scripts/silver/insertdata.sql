@@ -64,5 +64,49 @@ end as prd_line, --  Map product line codes to descriptive value
 prd_start_dt,
 dateadd(day, - 1, lead(prd_start_dt) over(partition by prd_key order by prd_start_dt)) as prd_end_dt --Calculated date
 from bronze.crm_prd_info
+----------------------------------------------------------------------------------------
+--This is for silver.crm_sales_details 
 
+insert into  silver.crm_sales_details (
+	sls_ord_num ,
+	sls_prd_key ,
+	sls_cust_id ,
+	sls_order_dt,
+	sls_ship_dt ,
+	sls_due_dt ,
+	sls_sales ,
+	sls_quantity ,
+	sls_price
+)
+select 
+sls_ord_num,
+sls_prd_key,
+sls_cust_id,
+case
+	when sls_order_dt = 0 or len(sls_order_dt) != 8 
+	then Null
+	else cast(cast(sls_order_dt as varchar) as date) -- coverted the date to varchar to date as this was originally from integer
+	end as sls_order_dt,
+case 
+	when sls_ship_dt = 0 or len(sls_ship_dt) != 8 
+	then Null
+	else cast(cast(sls_ship_dt as varchar) as date)
+end as  sls_ship_dt,
+case 
+	when sls_due_dt  = 0 or len(sls_due_dt) != 8  
+	then Null
+	else cast(cast(sls_due_dt as varchar) as date)
+end as sls_due_dt,
+case
+		when sls_sales is null or sls_sales <= 0 or sls_sales != sls_quantrity * abs(sls_price)
+		then sls_quantrity * abs(sls_price)
+		else sls_sales
+end as sls_sales,
+sls_quantrity,
+case 
+		when sls_price is null or sls_price <= 0 
+		then sls_sales / nullif(sls_quantrity, 0)
+		else sls_price
+end sls_price
+from bronze.crm_sales_details
 
