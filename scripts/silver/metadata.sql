@@ -112,3 +112,22 @@ create table silver.crm_prd_info (
 
 
 --Addtion of cat_id which was substracted from prd_key to join in future table
+
+
+--This is after the quality check
+IF OBJECT_ID('silver.crm_sales_details', 'U') IS NOT NULL
+    DROP TABLE silver.crm_sales_details;
+
+CREATE TABLE silver.crm_sales_details (
+    sls_ord_num       varchar(20),   -- 👈 FIXED
+    sls_prd_key       varchar(55),
+    sls_cust_id       int,
+    sls_order_dt      date,
+    sls_ship_dt       date,
+    sls_due_dt        date,
+    sls_sales         decimal(18,2),
+    sls_quantity      int,
+    sls_price         decimal(18,2),
+    dwh_create_date   datetime2(0) DEFAULT SYSDATETIME()
+);
+-------------------------------------------------------------------
