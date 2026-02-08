@@ -116,15 +116,50 @@ Insert into silver.erp_cust_AZ12
 
 	
 select 
-case when cid like 'Nas%' then substring (cid, 4, len(cid))
-else cid
+case
+	when cid like 'Nas%' then substring (cid, 4, len(cid))
+	else cid
 end cid,
-case when bdate > getdate() then null
-else BDATE
+case
+	when bdate > getdate() then null -------- We can not have the customers who are yet to be born :P
+	else BDATE
 end bdate, 
 case 
-when trim(gen) in ('F', 'Female') then 'Female'
-when trim(gen) in ('M', 'Male') then 'Male'
-else 'NA'
+	when trim(gen) in ('F', 'Female') then 'Female'
+	when trim(gen) in ('M', 'Male') then 'Male'
+	else 'NA'
 end as gen
 from bronze.erp_cust_AZ12
+---------------------------------------------------------------------------------------------------
+
+----into silver.erp_LOC_A101
+	
+insert into silver.erp_LOC_A101(
+CID,
+CNTRY
+)
+SELECT 
+    REPLACE(CID, '-', '') AS cid,
+    CASE
+        WHEN TRIM(cntry) = 'DE' THEN 'Germany' -- This has been done to remove the abbrevations 
+        WHEN TRIM(cntry) IN ('US', 'USA') THEN 'United States'
+        WHEN TRIM(cntry) = '' OR cntry IS NULL THEN 'N/A'
+        ELSE TRIM(cntry)
+    END AS cntry
+FROM bronze.erp_LOC_A101;
+--------------------------------------------------------------------------------------------------
+
+--This is the final table silver.erp_px_cat_g1v2
+
+insert into silver.erp_px_cat_g1v2(
+id,
+cat,
+subcat,
+MAINTENANCE
+)
+select 
+id,
+cat,
+subcat,
+MAINTENANCE
+from bronze.erp_px_cat_g1v2
