@@ -50,8 +50,8 @@ insert into silver.crm_prd_info (
 	prd_end_dt
 )
 select prd_id,
-replace(substring(prd_key, 1, 5), '-', '_') as cat_id,
-SUBSTRING(prd_key, 7, len(prd_key)) as prd_key,
+replace(substring(prd_key, 1, 5), '-', '_') as cat_id, --Extract Category Id
+SUBSTRING(prd_key, 7, len(prd_key)) as prd_key, -- Extract key
 prd_nm, 
 isnull(prd_cost, 0) as prd_cost, 
 case trim(prd_line)
@@ -60,9 +60,9 @@ case trim(prd_line)
 	when 'S' then 'Other Sales'
 	when 'T' then 'Touring'
 	else 'N/A'
-end as prd_line,
+end as prd_line, --  Map product line codes to descriptive value
 prd_start_dt,
-dateadd(day, - 1, lead(prd_start_dt) over(partition by prd_key order by prd_start_dt)) as prd_end_dt
+dateadd(day, - 1, lead(prd_start_dt) over(partition by prd_key order by prd_start_dt)) as prd_end_dt --Calculated date
 from bronze.crm_prd_info
 
 
