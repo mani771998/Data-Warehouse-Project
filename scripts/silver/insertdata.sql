@@ -109,4 +109,22 @@ case
 		else sls_price
 end sls_price
 from bronze.crm_sales_details
+----------------------------------------------------------------------------------------------------
+--Insterted into silver.erp_cust_AZ12 after cleansing
+Insert into silver.erp_cust_AZ12
+	(cid, bdate, gen)
 
+	
+select 
+case when cid like 'Nas%' then substring (cid, 4, len(cid))
+else cid
+end cid,
+case when bdate > getdate() then null
+else BDATE
+end bdate, 
+case 
+when trim(gen) in ('F', 'Female') then 'Female'
+when trim(gen) in ('M', 'Male') then 'Male'
+else 'NA'
+end as gen
+from bronze.erp_cust_AZ12
